@@ -40,7 +40,17 @@ public class AFKManager {
         }
 
         PlayerActivity activity = playerActivities.get(uuid);
-        boolean significantMovement = activity.updateLocation(newLocation, plugin.getConfigManager().getDetectionMethod());
+        ConfigManager configManager = plugin.getConfigManager();
+
+        boolean significantMovement = activity.updateLocation(
+                newLocation,
+                configManager.getDetectionMethod(),
+                configManager.getMinMovementDistance(),
+                configManager.getMaxSmallMovement(),
+                configManager.getMinCameraYaw(),
+                configManager.getMinCameraPitch(),
+                configManager.considerRotationInSimple()
+        );
 
         if (significantMovement) {
             lastActiveTimes.put(uuid, System.currentTimeMillis());
@@ -59,34 +69,39 @@ public class AFKManager {
         }
 
         afkStatus.put(uuid, afk);
+        ConfigManager configManager = plugin.getConfigManager();
+        boolean broadcastMessages = configManager.broadcastAfkMessages();
 
         if (afk) {
-            player.sendMessage(plugin.formatMessage(plugin.getConfigManager().getYouAreNowAfkMessage()));
+            player.sendMessage(plugin.formatMessage(configManager.getYouAreNowAfkMessage()));
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (!onlinePlayer.equals(player)) {
-                    onlinePlayer.sendMessage(plugin.formatMessage(
-                            plugin.getConfigManager().getPlayerNowAfkMessage(player.getName())));
+            if (broadcastMessages) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (!onlinePlayer.equals(player)) {
+                        onlinePlayer.sendMessage(plugin.formatMessage(
+                                configManager.getPlayerNowAfkMessage(player.getName())));
+                    }
                 }
             }
 
-            if (plugin.getConfigManager().useAfkArea()) {
-                Location afkArea = plugin.getConfigManager().getAfkArea();
+            if (configManager.useAfkArea()) {
+                Location afkArea = configManager.getAfkArea();
                 if (afkArea != null) {
                     player.teleport(afkArea);
                 }
             }
         } else {
-            player.sendMessage(plugin.formatMessage(plugin.getConfigManager().getYouAreNoLongerAfkMessage()));
+            player.sendMessage(plugin.formatMessage(configManager.getYouAreNoLongerAfkMessage()));
 
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (!onlinePlayer.equals(player)) {
-                    onlinePlayer.sendMessage(plugin.formatMessage(
-                            plugin.getConfigManager().getPlayerNoLongerAfkMessage(player.getName())));
+            if (broadcastMessages) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (!onlinePlayer.equals(player)) {
+                        onlinePlayer.sendMessage(plugin.formatMessage(
+                                configManager.getPlayerNoLongerAfkMessage(player.getName())));
+                    }
                 }
             }
 
-            // Aggiorna il tempo dell'ultima attività
             lastActiveTimes.put(uuid, System.currentTimeMillis());
         }
     }

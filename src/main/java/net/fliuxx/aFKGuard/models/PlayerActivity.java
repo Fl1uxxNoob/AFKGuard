@@ -14,7 +14,10 @@ public class PlayerActivity {
         this.lastPitch = initialLocation.getPitch();
     }
 
-    public boolean updateLocation(Location newLocation, String detectionMethod) {
+    public boolean updateLocation(Location newLocation, String detectionMethod,
+                                  double minMovementDistance, double maxSmallMovement,
+                                  float minCameraYaw, float minCameraPitch,
+                                  boolean considerRotationInSimple) {
         boolean significantMovement = false;
 
         if ("SIMPLE".equalsIgnoreCase(detectionMethod)) {
@@ -22,11 +25,26 @@ public class PlayerActivity {
                     lastLocation.getX() != newLocation.getX() ||
                     lastLocation.getY() != newLocation.getY() ||
                     lastLocation.getZ() != newLocation.getZ();
+
+            if (considerRotationInSimple && !significantMovement) {
+                float yawDiff = Math.abs(normalizeAngle(newLocation.getYaw() - lastYaw));
+                float pitchDiff = Math.abs(normalizeAngle(newLocation.getPitch() - lastPitch));
+                significantMovement = yawDiff > minCameraYaw || pitchDiff > minCameraPitch;
+            }
         } else {
             double distanceSquared = lastLocation.distanceSquared(newLocation);
-            float yawDiff = Math.abs(normalizeAngle(newLocation.getYaw() - lastYaw));
-            float pitchDiff = Math.abs(normalizeAngle(newLocation.getPitch() - lastPitch));
-            significantMovement = distanceSquared > 0.01 || yawDiff > 5 || pitchDiff > 5;
+
+            if (distanceSquared > maxSmallMovement * maxSmallMovement) {
+                significantMovement = true;
+            }
+            else if (distanceSquared > minMovementDistance * minMovementDistance) {
+                significantMovement = true;
+            }
+            else {
+                float yawDiff = Math.abs(normalizeAngle(newLocation.getYaw() - lastYaw));
+                float pitchDiff = Math.abs(normalizeAngle(newLocation.getPitch() - lastPitch));
+                significantMovement = yawDiff > minCameraYaw || pitchDiff > minCameraPitch;
+            }
         }
 
         this.lastLocation = newLocation.clone();
@@ -35,7 +53,6 @@ public class PlayerActivity {
 
         return significantMovement;
     }
-
 
     private float normalizeAngle(float angle) {
         angle = angle % 360;
@@ -46,7 +63,6 @@ public class PlayerActivity {
         }
         return angle;
     }
-
 
     public Location getLastLocation() {
         return lastLocation.clone();

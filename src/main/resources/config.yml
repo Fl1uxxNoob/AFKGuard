@@ -26,6 +26,10 @@ settings:
     - "msg"
     - "tell"
 
+  # Se true, i messaggi AFK saranno visibili a tutti i giocatori
+  # Se false, solo il giocatore che diventa AFK vedrà i messaggi
+  broadcast-afk-messages: true
+
 # Impostazioni per le notifiche casuali di verifica attività
 verification:
   # Se true, abilita la verifica casuale dell'attività

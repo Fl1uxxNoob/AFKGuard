@@ -1,0 +1,21 @@
+# AFKGuard Detection Settings
+# Impostazioni dettagliate per il rilevamento AFK
+
+detection:
+  # Impostazioni per il metodo di rilevamento ADVANCED
+  advanced:
+    # Distanza minima in blocchi per considerare un movimento significativo
+    min-movement-distance: 0.05
+
+    # Distanza massima in blocchi per considerare piccoli spostamenti
+    # Movimenti superiori a questo valore saranno sempre considerati significativi
+    max-small-movement: 2.0
+
+    # Rotazione minima della camera (in gradi) per considerarla un'attività
+    min-camera-yaw: 5.0
+    min-camera-pitch: 5.0
+
+  # Impostazioni per il metodo di rilevamento SIMPLE
+  simple:
+    # Se considerare i cambi di rotazione della camera come attività
+    consider-rotation: false

@@ -5,13 +5,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 public class ConfigManager {
 
     private final AFKGuard plugin;
     private FileConfiguration config;
+    private FileConfiguration settingsConfig;
+    private File settingsFile;
 
     public ConfigManager(AFKGuard plugin) {
         this.plugin = plugin;
@@ -21,11 +28,45 @@ public class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
         config = plugin.getConfig();
+        loadSettingsConfig();
+    }
+
+    private void loadSettingsConfig() {
+        settingsFile = new File(plugin.getDataFolder(), "settings.yml");
+        if (!settingsFile.exists()) {
+            settingsFile.getParentFile().mkdirs();
+            plugin.saveResource("settings.yml", false);
+        }
+        settingsConfig = YamlConfiguration.loadConfiguration(settingsFile);
+
+        InputStream defaultSettingsStream = plugin.getResource("settings.yml");
+        if (defaultSettingsStream != null) {
+            YamlConfiguration defaultSettings = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(defaultSettingsStream));
+
+            for (String key : defaultSettings.getKeys(true)) {
+                if (!settingsConfig.contains(key)) {
+                    settingsConfig.set(key, defaultSettings.get(key));
+                }
+            }
+
+            try {
+                settingsConfig.save(settingsFile);
+            } catch (IOException e) {
+                plugin.getLogger().severe("Impossibile salvare il file settings.yml: " + e.getMessage());
+            }
+        }
     }
 
     public void reloadConfig() {
         plugin.reloadConfig();
         config = plugin.getConfig();
+
+        if (settingsFile != null) {
+            settingsConfig = YamlConfiguration.loadConfiguration(settingsFile);
+        } else {
+            loadSettingsConfig();
+        }
     }
 
     public int getAfkTime() {
@@ -50,6 +91,30 @@ public class ConfigManager {
 
     public List<String> getAllowedCommands() {
         return config.getStringList("settings.allowed-commands");
+    }
+
+    public boolean broadcastAfkMessages() {
+        return config.getBoolean("settings.broadcast-afk-messages", true);
+    }
+
+    public double getMinMovementDistance() {
+        return settingsConfig.getDouble("detection.advanced.min-movement-distance", 0.05);
+    }
+
+    public double getMaxSmallMovement() {
+        return settingsConfig.getDouble("detection.advanced.max-small-movement", 2.0);
+    }
+
+    public float getMinCameraYaw() {
+        return (float) settingsConfig.getDouble("detection.advanced.min-camera-yaw", 5.0);
+    }
+
+    public float getMinCameraPitch() {
+        return (float) settingsConfig.getDouble("detection.advanced.min-camera-pitch", 5.0);
+    }
+
+    public boolean considerRotationInSimple() {
+        return settingsConfig.getBoolean("detection.simple.consider-rotation", false);
     }
 
     public boolean isVerificationEnabled() {
