@@ -1,0 +1,74 @@
+# AFKGuard Configuration
+# Plugin creato da Fl1uxxNoob
+
+# Impostazioni generali
+settings:
+  # Tempo (in secondi) dopo il quale un giocatore viene considerato AFK
+  afk-time: 300
+
+  # Tempo (in secondi) dopo il quale un giocatore AFK viene kickato (0 per disabilitare)
+  kick-time: 600
+
+  # Se true, invece di kickare il giocatore lo sposta nella zona AFK
+  use-afk-area: false
+
+  # Metodo di rilevamento (può essere: SIMPLE, ADVANCED)
+  # SIMPLE: controlla solo se il giocatore è fermo
+  # ADVANCED: controlla anche movimenti minimi e rotazioni della camera
+  detection-method: "ADVANCED"
+
+  # Se true, blocca i comandi per i giocatori AFK
+  block-commands: true
+
+  # Lista di comandi che possono essere usati anche in stato AFK
+  allowed-commands:
+    - "afk"
+    - "msg"
+    - "tell"
+
+# Impostazioni per le notifiche casuali di verifica attività
+verification:
+  # Se true, abilita la verifica casuale dell'attività
+  enabled: true
+
+  # Tempo (in secondi) dopo il quale potrebbe essere richiesta una verifica
+  interval: 450
+
+  # Probabilità di richiesta verifica (0-100)
+  chance: 65
+
+  # Tempo (in secondi) per rispondere alla verifica prima di essere kickati
+  timeout: 60
+
+  # Titolo mostrato durante la verifica
+  title: "&c&lVerifica AFK"
+
+  # Sottotitolo mostrato durante la verifica
+  subtitle: "&7Clicca sul bottone per dimostrare che sei attivo"
+
+  # Testo sul bottone da cliccare
+  button-text: "&a&lClicca qui"
+
+  # Messaggio di kick se la verifica scade
+  timeout-message: "&cNon hai risposto alla verifica AFK in tempo."
+
+# Impostazioni per il teleport all'area AFK
+afk-area:
+  # Coordinate per la zona AFK (imposta queste coordinate nel tuo server)
+  world: "world"
+  x: 0
+  y: 100
+  z: 0
+  yaw: 0
+  pitch: 0
+
+# Messaggi del plugin
+messages:
+  prefix: "&7[&bAFK&fGuard&7] "
+  player-now-afk: "&e{player} &7è ora &cAFK&7."
+  player-no-longer-afk: "&e{player} &7non è più &cAFK&7."
+  you-are-now-afk: "&7Sei ora in modalità &cAFK&7."
+  you-are-no-longer-afk: "&7Non sei più in modalità &cAFK&7."
+  kick-message: "&cSei stato disconnesso per inattività prolungata!"
+  config-reloaded: "&aConfigurazione ricaricata con successo!"
+  no-permission: "&cNon hai i permessi per eseguire questo comando!"

@@ -1,0 +1,19 @@
+name: AFKGuard
+version: '1.0'
+main: net.fliuxx.aFKGuard.AFKGuard
+api-version: '1.8.8'
+authors: [ Fl1uxxNoob ]
+description: Advanced system to detect AFK players and prevent their abuse
+commands:
+  afk:
+    description: Comando principale per AFKGuard
+    usage: /<command> [check|reload]
+    aliases: [afkguard]
+permissions:
+  afkguard.bypass:
+    description: Permette ai giocatori di bypassare il controllo AFK
+    default: op
+  afkguard.admin:
+    description: Permette di amministrare il plugin AFKGuard
+    default: op
+
