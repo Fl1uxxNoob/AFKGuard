@@ -68,22 +68,26 @@ public class AFKCommand implements CommandExecutor, TabCompleter {
             }
 
             boolean isAfk = plugin.getAfkManager().isPlayerAFK(target.getUniqueId());
-            int inactiveTime = plugin.getAfkManager().getInactiveTime(target.getUniqueId());
 
-            sender.sendMessage(plugin.formatMessage("&6Stato di " + target.getName() + ": " +
-                    (isAfk ? "&cAFK" : "&aNon AFK") +
-                    " &7(Inattivo da " + inactiveTime + " secondi)"));
+            if (isAfk) {
+                int inactiveTime = plugin.getAfkManager().getInactiveTime(target.getUniqueId());
+                sender.sendMessage(plugin.formatMessage("&6Stato di " + target.getName() + ": &cAFK &7(Inattivo da " + inactiveTime + " secondi)"));
+            } else {
+                sender.sendMessage(plugin.formatMessage("&6Stato di " + target.getName() + ": &aNon AFK"));
+            }
             return;
         }
 
         sender.sendMessage(plugin.formatMessage("&6Stato AFK di tutti i giocatori:"));
         for (Player player : Bukkit.getOnlinePlayers()) {
             boolean isAfk = plugin.getAfkManager().isPlayerAFK(player.getUniqueId());
-            int inactiveTime = plugin.getAfkManager().getInactiveTime(player.getUniqueId());
 
-            sender.sendMessage(plugin.formatMessage("&7- " + player.getName() + ": " +
-                    (isAfk ? "&cAFK" : "&aNon AFK") +
-                    " &7(Inattivo da " + inactiveTime + " secondi)"));
+            if (isAfk) {
+                int inactiveTime = plugin.getAfkManager().getInactiveTime(player.getUniqueId());
+                sender.sendMessage(plugin.formatMessage("&7- " + player.getName() + ": &cAFK &7(Inattivo da " + inactiveTime + " secondi)"));
+            } else {
+                sender.sendMessage(plugin.formatMessage("&7- " + player.getName() + ": &aNon AFK"));
+            }
         }
     }
 
