@@ -16,12 +16,14 @@ public class AFKManager {
     private final Map<UUID, PlayerActivity> playerActivities;
     private final Map<UUID, Boolean> afkStatus;
     private final Map<UUID, Long> lastActiveTimes;
+    private final Map<UUID, Long> afkStartTimes;
 
     public AFKManager(AFKGuard plugin) {
         this.plugin = plugin;
         this.playerActivities = new HashMap<>();
         this.afkStatus = new HashMap<>();
         this.lastActiveTimes = new HashMap<>();
+        this.afkStartTimes = new HashMap<>();
     }
 
     public void initializePlayer(Player player) {
@@ -63,8 +65,9 @@ public class AFKManager {
 
     public void setPlayerAFK(Player player, boolean afk) {
         UUID uuid = player.getUniqueId();
+        boolean wasAfk = afkStatus.getOrDefault(uuid, false);
 
-        if (afkStatus.getOrDefault(uuid, false) == afk) {
+        if (wasAfk == afk) {
             return;
         }
 
@@ -73,6 +76,8 @@ public class AFKManager {
         boolean broadcastMessages = configManager.broadcastAfkMessages();
 
         if (afk) {
+            afkStartTimes.put(uuid, System.currentTimeMillis());
+
             player.sendMessage(plugin.formatMessage(configManager.getYouAreNowAfkMessage()));
 
             if (broadcastMessages) {
@@ -84,13 +89,25 @@ public class AFKManager {
                 }
             }
 
+            if (!Bukkit.isPrimaryThread() || !wasCommandExecution()) {
+                int inactiveTime = getInactiveTime(uuid);
+                plugin.getDatabaseManager().logAutoAFK(player, inactiveTime);
+            }
+
             if (configManager.useAfkArea()) {
                 Location afkArea = configManager.getAfkArea();
                 if (afkArea != null) {
                     player.teleport(afkArea);
+
+                    plugin.getDatabaseManager().logAFKTeleport(player,
+                            afkArea.getWorld().getName(),
+                            afkArea.getX(),
+                            afkArea.getY(),
+                            afkArea.getZ());
                 }
             }
         } else {
+            afkStartTimes.remove(uuid);
             player.sendMessage(plugin.formatMessage(configManager.getYouAreNoLongerAfkMessage()));
 
             if (broadcastMessages) {
@@ -148,6 +165,11 @@ public class AFKManager {
 
     public void kickAFKPlayer(Player player) {
         if (player != null && player.isOnline()) {
+            UUID uuid = player.getUniqueId();
+            int totalAfkTime = getTotalAfkTime(uuid);
+
+            plugin.getDatabaseManager().logAFKKick(player, totalAfkTime);
+
             player.kickPlayer(plugin.getConfigManager().getKickMessage());
         }
     }
@@ -156,12 +178,14 @@ public class AFKManager {
         playerActivities.remove(uuid);
         afkStatus.remove(uuid);
         lastActiveTimes.remove(uuid);
+        afkStartTimes.remove(uuid);
     }
 
     public void cleanup() {
         playerActivities.clear();
         afkStatus.clear();
         lastActiveTimes.clear();
+        afkStartTimes.clear();
     }
 
     public int getInactiveTime(UUID uuid) {
@@ -171,5 +195,24 @@ public class AFKManager {
 
         long timeSinceLastActivity = System.currentTimeMillis() - lastActiveTimes.get(uuid);
         return (int) (timeSinceLastActivity / 1000);
+    }
+
+    public int getTotalAfkTime(UUID uuid) {
+        if (!afkStartTimes.containsKey(uuid)) {
+            return 0;
+        }
+
+        long afkDuration = System.currentTimeMillis() - afkStartTimes.get(uuid);
+        return (int) (afkDuration / 1000);
+    }
+
+    private boolean wasCommandExecution() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement element : stackTrace) {
+            if (element.getClassName().contains("AFKCommand")) {
+                return true;
+            }
+        }
+        return false;
     }
 }

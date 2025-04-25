@@ -1,5 +1,5 @@
 name: AFKGuard
-version: '1.0'
+version: '1.1'
 main: net.fliuxx.aFKGuard.AFKGuard
 api-version: '1.8.8'
 authors: [ Fl1uxxNoob ]
@@ -7,7 +7,7 @@ description: Advanced system to detect AFK players and prevent their abuse
 commands:
   afk:
     description: Comando principale per AFKGuard
-    usage: /<command> [check|reload]
+    usage: /<command> [check|verify|history|reload]
     aliases: [afkguard]
 permissions:
   afkguard.bypass:

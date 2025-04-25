@@ -11,12 +11,13 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class AFKCommand implements CommandExecutor, TabCompleter {
 
     private final AFKGuard plugin;
-    private final List<String> subCommands = Arrays.asList("check", "reload", "verify");
+    private final List<String> subCommands = Arrays.asList("check", "reload", "verify", "history");
 
     public AFKCommand(AFKGuard plugin) {
         this.plugin = plugin;
@@ -46,8 +47,11 @@ public class AFKCommand implements CommandExecutor, TabCompleter {
             case "verify":
                 handleVerifyCommand(sender);
                 break;
+            case "history":
+                handleHistoryCommand(sender, args);
+                break;
             default:
-                sender.sendMessage(plugin.formatMessage("&cComando non riconosciuto. Usa /afk, /afk check o /afk reload"));
+                sender.sendMessage(plugin.formatMessage("&cComando non riconosciuto. Usa /afk, /afk check, /afk history o /afk reload"));
                 break;
         }
 
@@ -113,19 +117,66 @@ public class AFKCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    private void handleHistoryCommand(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("afkguard.admin")) {
+            sender.sendMessage(plugin.formatMessage(plugin.getConfigManager().getNoPermissionMessage()));
+            return;
+        }
+
+        Player target;
+        int limit = 10;
+
+        if (args.length > 1) {
+            target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(plugin.formatMessage("&cGiocatore non trovato o non online."));
+                return;
+            }
+
+            if (args.length > 2) {
+                try {
+                    limit = Integer.parseInt(args[2]);
+                    if (limit <= 0) limit = 10;
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(plugin.formatMessage("&cIl limite deve essere un numero. Uso il valore predefinito di 10."));
+                }
+            }
+        } else if (sender instanceof Player) {
+            target = (Player) sender;
+        } else {
+            sender.sendMessage(plugin.formatMessage("&cSpecifica un giocatore: /afk history <player> [limit]"));
+            return;
+        }
+
+        UUID playerUUID = target.getUniqueId();
+        List<String> history = plugin.getDatabaseManager().getPlayerAFKHistory(playerUUID, limit);
+
+        sender.sendMessage(plugin.formatMessage("&6Storia AFK di &e" + target.getName() + "&6:"));
+
+        if (history.isEmpty()) {
+            sender.sendMessage(plugin.formatMessage("&7Nessun evento AFK registrato per questo giocatore."));
+            return;
+        }
+
+        for (String entry : history) {
+            sender.sendMessage(plugin.formatMessage("&7" + entry));
+        }
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
             return subCommands.stream()
                     .filter(subCmd -> subCmd.startsWith(args[0].toLowerCase()))
                     .filter(subCmd -> {
-                        if ("reload".equals(subCmd) || "check".equals(subCmd)) {
+                        if ("reload".equals(subCmd) || "check".equals(subCmd) || "history".equals(subCmd)) {
                             return sender.hasPermission("afkguard.admin");
                         }
                         return true;
                     })
                     .collect(Collectors.toList());
-        } else if (args.length == 2 && "check".equals(args[0].toLowerCase()) && sender.hasPermission("afkguard.admin")) {
+        } else if (args.length == 2 && ("check".equals(args[0].toLowerCase()) || "history".equals(args[0].toLowerCase()))
+                && sender.hasPermission("afkguard.admin")) {
             List<String> playerNames = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 playerNames.add(player.getName());
