@@ -10,6 +10,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.UUID;
+
 public class InventoryListener implements Listener {
 
     private final AFKGuard plugin;
@@ -25,15 +27,18 @@ public class InventoryListener implements Listener {
         }
 
         Player player = (Player) event.getWhoClicked();
+        UUID uuid = player.getUniqueId();
 
         // Check if it's our verification GUI
         if (plugin.getVerificationManager().getVerificationGUI().isVerificationInventory(event.getInventory())) {
             event.setCancelled(true); // Cancel all inventory interactions
 
-            // Check if they clicked the verification button (slot 13)
-            if (event.getSlot() == 13) {
+            // Check if they clicked the verification button
+            int buttonPosition = plugin.getVerificationManager().getVerificationGUI().getButtonPosition(uuid);
+            if (event.getSlot() == buttonPosition) {
                 plugin.getVerificationManager().completeVerification(player);
                 player.closeInventory();
+                player.sendMessage(plugin.formatMessage(plugin.getConfigManager().getVerificationSuccessMessage()));
             }
         }
     }
@@ -56,6 +61,7 @@ public class InventoryListener implements Listener {
                 public void run() {
                     if (player.isOnline() && plugin.getVerificationManager().hasActiveVerification(player.getUniqueId())) {
                         plugin.getVerificationManager().getVerificationGUI().openVerificationGUI(player);
+                        player.sendMessage(plugin.formatMessage(plugin.getConfigManager().getVerificationReopenMessage()));
                     }
                 }
             }.runTaskLater(plugin, 1L);

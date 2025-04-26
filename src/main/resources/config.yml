@@ -44,17 +44,39 @@ verification:
   # Tempo (in secondi) per rispondere alla verifica prima di essere kickati
   timeout: 60
 
-  # Titolo mostrato durante la verifica
-  title: "&c&lVerifica AFK"
+  # Configurazione GUI
+  gui:
+    # Titolo principale della GUI
+    title: "&c&lVerifica AFK"
 
-  # Sottotitolo mostrato durante la verifica
-  subtitle: "&7Clicca sul bottone per dimostrare che sei attivo"
+    # Sottotitolo della GUI (mostrato come titolo del giocatore)
+    subtitle: "&7Clicca sul bottone per dimostrare che sei attivo"
 
-  # Testo sul bottone da cliccare
-  button-text: "&a&lClicca qui"
+    # Configurazione dell'elemento di riempimento
+    filler:
+      text: "&cVerifica AFK"
+      description: "&7Clicca sul bottone colorato per verificarti"
 
-  # Messaggio di kick se la verifica scade
-  timeout-message: "&cNon hai risposto alla verifica AFK in tempo."
+    # Configurazione del bottone di verifica
+    button:
+      text: "&a&lClicca qui"
+      description: "&aClicca qui per confermare che sei attivo"
+      # Colore del bottone (Data value del blocco STAINED_GLASS)
+      # 0: bianco, 1: arancione, 2: magenta, 3: azzurro, 4: giallo
+      # 5: verde lime, 6: rosa, 7: grigio, 8: grigio chiaro, 9: ciano
+      # 10: viola, 11: blu, 12: marrone, 13: verde, 14: rosso, 15: nero
+      color: 5
+
+  # Messaggi relativi alla verifica
+  messages:
+    # Messaggio mostrato quando la verifica viene completata con successo
+    success: "&aVerifica completata con successo!"
+
+    # Messaggio mostrato quando la GUI viene riaperta dopo essere stata chiusa
+    reopen: "&cDevi completare la verifica AFK per continuare a giocare."
+
+    # Messaggio di kick se la verifica scade
+    timeout: "&cNon hai risposto alla verifica AFK in tempo."
 
 # Impostazioni per il teleport all'area AFK
 afk-area:

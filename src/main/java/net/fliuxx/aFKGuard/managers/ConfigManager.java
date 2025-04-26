@@ -133,24 +133,51 @@ public class ConfigManager {
         return config.getInt("verification.timeout", 60);
     }
 
+    // GUI messages - Title and Subtitle
     public String getVerificationTitle() {
         return ChatColor.translateAlternateColorCodes('&',
-                config.getString("verification.title", "&c&lVerifica AFK"));
+                config.getString("verification.gui.title", "&c&lVerifica AFK"));
     }
 
     public String getVerificationSubtitle() {
         return ChatColor.translateAlternateColorCodes('&',
-                config.getString("verification.subtitle", "&7Clicca sul bottone per dimostrare che sei attivo"));
+                config.getString("verification.gui.subtitle", "&7Clicca sul bottone per dimostrare che sei attivo"));
     }
 
+    // GUI messages - Filler Item
+    public String getVerificationFillerText() {
+        return config.getString("verification.gui.filler.text", "&cVerifica AFK");
+    }
+
+    public String getVerificationFillerDescription() {
+        return config.getString("verification.gui.filler.description", "&7Clicca sul bottone colorato per verificarti");
+    }
+
+    // GUI messages - Button
     public String getVerificationButtonText() {
-        return ChatColor.translateAlternateColorCodes('&',
-                config.getString("verification.button-text", "&a&lClicca qui"));
+        return config.getString("verification.gui.button.text", "&a&lClicca qui");
+    }
+
+    public String getVerificationButtonDescription() {
+        return config.getString("verification.gui.button.description", "&aClicca qui per confermare che sei attivo");
+    }
+
+    public int getVerificationButtonColor() {
+        return config.getInt("verification.gui.button.color", 5); // Default: 5 (green)
+    }
+
+    // GUI messages - Success/Error
+    public String getVerificationSuccessMessage() {
+        return config.getString("verification.messages.success", "&aVerifica completata con successo!");
+    }
+
+    public String getVerificationReopenMessage() {
+        return config.getString("verification.messages.reopen", "&cDevi completare la verifica AFK per continuare a giocare.");
     }
 
     public String getVerificationTimeoutMessage() {
         return ChatColor.translateAlternateColorCodes('&',
-                config.getString("verification.timeout-message", "&cNon hai risposto alla verifica AFK in tempo."));
+                config.getString("verification.messages.timeout", "&cNon hai risposto alla verifica AFK in tempo."));
     }
 
     public Location getAfkArea() {
