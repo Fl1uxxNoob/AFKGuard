@@ -2,7 +2,7 @@
 
 Advanced AFK detection and management system for Minecraft servers.
 
-![version](https://img.shields.io/badge/version-1.1-blue.svg)
+![version](https://img.shields.io/badge/version-1.2-blue.svg)
 ![MC version](https://img.shields.io/badge/MC-1.8.8-brightgreen.svg)
 
 ## Overview
@@ -26,7 +26,8 @@ AFKGuard is a comprehensive plugin for Minecraft servers that detects, manages, 
 
 ### 👮 Verification System
 - Random verification prompts for AFK players
-- Click-to-verify interactive messages
+- GUI-based verification: click the correct block to verify
+- The correct block changes position randomly each time
 - Configurable verification timeout with auto-kick option
 
 ### ⚙️ Management Features
