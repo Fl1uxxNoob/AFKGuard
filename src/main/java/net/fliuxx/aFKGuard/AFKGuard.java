@@ -1,6 +1,7 @@
 package net.fliuxx.aFKGuard;
 
 import net.fliuxx.aFKGuard.commands.AFKCommand;
+import net.fliuxx.aFKGuard.listeners.InventoryListener;
 import net.fliuxx.aFKGuard.listeners.PlayerActivityListener;
 import net.fliuxx.aFKGuard.managers.AFKManager;
 import net.fliuxx.aFKGuard.managers.ConfigManager;
@@ -28,7 +29,9 @@ public class AFKGuard extends JavaPlugin {
 
         getCommand("afk").setExecutor(new AFKCommand(this));
 
+        // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerActivityListener(this), this);
+        getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
 
         new AFKCheckTask(this).runTaskTimer(this, 20L, 20L);
 

@@ -1,10 +1,7 @@
 package net.fliuxx.aFKGuard.managers;
 
 import net.fliuxx.aFKGuard.AFKGuard;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.fliuxx.aFKGuard.gui.AFKVerificationGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
@@ -18,14 +15,15 @@ public class VerificationManager {
     private final Map<UUID, Long> lastVerificationTimes;
     private final Map<UUID, BukkitTask> pendingVerifications;
     private final Set<UUID> activeVerifications;
+    private final AFKVerificationGUI verificationGUI;
 
     public VerificationManager(AFKGuard plugin) {
         this.plugin = plugin;
         this.lastVerificationTimes = new HashMap<>();
         this.pendingVerifications = new HashMap<>();
         this.activeVerifications = new HashSet<>();
+        this.verificationGUI = new AFKVerificationGUI(plugin);
     }
-
 
     public boolean shouldSendVerification(UUID uuid) {
         if (!plugin.getConfigManager().isVerificationEnabled()) {
@@ -63,22 +61,21 @@ public class VerificationManager {
         lastVerificationTimes.put(uuid, System.currentTimeMillis());
         activeVerifications.add(uuid);
 
+        // Show title for notification
         player.sendTitle(
                 plugin.getConfigManager().getVerificationTitle(),
                 plugin.getConfigManager().getVerificationSubtitle()
         );
 
-        TextComponent message = new TextComponent(plugin.getConfigManager().getVerificationButtonText());
-        message.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/afk verify"));
-        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                new ComponentBuilder("Clicca per confermare che sei attivo").create()));
+        // Open the GUI instead of sending a message
+        verificationGUI.openVerificationGUI(player);
 
-        player.spigot().sendMessage(message);
-
+        // Set timeout for verification
         BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (activeVerifications.contains(uuid)) {
                 activeVerifications.remove(uuid);
                 pendingVerifications.remove(uuid);
+                verificationGUI.removeInventory(uuid);
 
                 player.kickPlayer(plugin.getConfigManager().getVerificationTimeoutMessage());
             }
@@ -100,6 +97,7 @@ public class VerificationManager {
         }
 
         activeVerifications.remove(uuid);
+        verificationGUI.removeInventory(uuid);
 
         plugin.getAfkManager().setPlayerAFK(player, false);
 
@@ -109,6 +107,7 @@ public class VerificationManager {
     public void removePlayer(UUID uuid) {
         lastVerificationTimes.remove(uuid);
         activeVerifications.remove(uuid);
+        verificationGUI.removeInventory(uuid);
 
         BukkitTask task = pendingVerifications.remove(uuid);
         if (task != null) {
@@ -124,5 +123,13 @@ public class VerificationManager {
         lastVerificationTimes.clear();
         pendingVerifications.clear();
         activeVerifications.clear();
+    }
+
+    public AFKVerificationGUI getVerificationGUI() {
+        return verificationGUI;
+    }
+
+    public boolean hasActiveVerification(UUID uuid) {
+        return activeVerifications.contains(uuid);
     }
 }
