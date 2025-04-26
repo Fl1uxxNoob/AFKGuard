@@ -7,7 +7,7 @@ description: Advanced system to detect AFK players and prevent their abuse
 commands:
   afk:
     description: Comando principale per AFKGuard
-    usage: /<command> [check|verify|history|reload]
+    usage: /<command> [check|history|reload]
     aliases: [afkguard]
 permissions:
   afkguard.bypass:

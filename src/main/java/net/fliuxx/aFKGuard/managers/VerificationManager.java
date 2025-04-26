@@ -61,12 +61,6 @@ public class VerificationManager {
         lastVerificationTimes.put(uuid, System.currentTimeMillis());
         activeVerifications.add(uuid);
 
-        // Show title for notification
-        player.sendTitle(
-                plugin.getConfigManager().getVerificationTitle(),
-                plugin.getConfigManager().getVerificationSubtitle()
-        );
-
         // Open the GUI instead of sending a message
         verificationGUI.openVerificationGUI(player);
 

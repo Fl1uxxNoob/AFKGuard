@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class AFKCommand implements CommandExecutor, TabCompleter {
 
     private final AFKGuard plugin;
-    private final List<String> subCommands = Arrays.asList("check", "reload", "verify", "history");
+    private final List<String> subCommands = Arrays.asList("check", "reload", "history");
 
     public AFKCommand(AFKGuard plugin) {
         this.plugin = plugin;
@@ -43,9 +43,6 @@ public class AFKCommand implements CommandExecutor, TabCompleter {
                 break;
             case "reload":
                 handleReloadCommand(sender);
-                break;
-            case "verify":
-                handleVerifyCommand(sender);
                 break;
             case "history":
                 handleHistoryCommand(sender, args);
@@ -103,18 +100,6 @@ public class AFKCommand implements CommandExecutor, TabCompleter {
 
         plugin.getConfigManager().reloadConfig();
         sender.sendMessage(plugin.formatMessage(plugin.getConfigManager().getConfigReloadedMessage()));
-    }
-
-    private void handleVerifyCommand(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(plugin.formatMessage("&cQuesto comando può essere utilizzato solo da un giocatore."));
-            return;
-        }
-
-        Player player = (Player) sender;
-        if (plugin.getVerificationManager().completeVerification(player)) {
-            player.sendMessage(plugin.formatMessage("&aVerifica completata con successo!"));
-        }
     }
 
     private void handleHistoryCommand(CommandSender sender, String[] args) {
